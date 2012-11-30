@@ -81,8 +81,39 @@ def make_node(tag_name = None, closes = True, close_tag = True):
     return node
 
 
-def with_attributes(node, **attrs):
-    """Builds a node from another, with fixed attributes."""
-    def fixed_node(*children):
-        return node(*children, **attrs)
+# Prefixing attributes. Used for nodes with attributes to be treated
+# as different nodes (i.e. css styling through classes).
+
+def union_replace(old, new):
+    """An aggressive union operator: replaces old keys."""
+    merged = {}
+    for k in old:
+        merged[k] = old[k]
+    for k in new:
+        merged[k] = new[k]
+    return merged
+
+
+def union_extend(*keys):
+    """Keys in *keys* are extended by pasting the values together.
+
+    The keys not in *keys* are treated the same way as in
+    union_replace."""
+    def union(old, new):
+        merged = {}
+        for k in old:
+            merged[k] = old[k]
+        for k in new:
+            if k in keys and k in merged:
+                merged[k] += " " + new[k]
+            else:
+                merged[k] = new[k]
+        return merged
+    return union
+
+
+def with_attributes(node, union, **old_attrs):
+    """Builds a node from another, with prefixed attributes."""
+    def fixed_node(*children, **new_attrs):
+        return node(*children, **(union(old_attrs, new_attrs)))
     return fixed_node

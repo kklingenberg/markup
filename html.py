@@ -13,6 +13,7 @@ import base
 # Reexport the text node.
 text = base.text
 
+
 doctype = text("<!doctype html>\n")
 
 def html(*children, **attrs):
@@ -37,6 +38,11 @@ script = base.make_node("script")
 # body nodes
 
 div      = base.make_node("div")
+h1       = base.make_node("h1")
+h2       = base.make_node("h2")
+h3       = base.make_node("h3")
+h4       = base.make_node("h4")
+h5       = base.make_node("h5")
 p        = base.make_node("p")
 span     = base.make_node("span")
 a        = base.make_node("a")
@@ -64,3 +70,15 @@ video    = base.make_node("video")
 audio    = base.make_node("audio")
 source   = base.make_node("source", closes = False)
 track    = base.make_node("track", closes = False)
+
+# A constructor for nodes with prefixed attributes.
+
+def with_attributes(node, **attrs):
+    """Builds a node from another with prefixed attributes.
+
+    New attributes will replace old ones, except for the 'class'
+    attribute which will be extended."""
+    return base.with_attributes(
+        node,
+        base.union_extend("class"),
+        **attrs)

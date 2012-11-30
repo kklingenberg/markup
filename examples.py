@@ -40,3 +40,16 @@ t = table_with_data(
 
 t(sys.stdout.write)
 print ""
+
+# A bootstrap button.
+
+btbutton = with_attributes(button, **{"class": "btn", "type": "submit"})
+
+# The type gets overwritten and the class extended.
+btn_doc = btbutton("Push me", **{"type": "button", "class": "btn-primary"})
+
+# Wrapping the keyword arguments in a dictionary is cumbersome, but
+# needed since 'class' and 'type' are reserved words.
+
+btn_doc(sys.stdout.write)
+print ""
