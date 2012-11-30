@@ -82,7 +82,7 @@ def make_node(tag_name = None, closes = True, close_tag = True):
 
 
 # Prefixing attributes. Used for nodes with attributes to be treated
-# as different nodes (i.e. css styling through classes).
+# as different nodes (e.g. css styling through classes).
 
 def union_replace(old, new):
     """An aggressive union operator: replaces old keys."""

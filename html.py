@@ -13,11 +13,13 @@ import base
 # Reexport the text node.
 text = base.text
 
+# A void node.
+void = base.make_node()
 
 doctype = text("<!doctype html>\n")
 
 def html(*children, **attrs):
-    return base.make_node()(
+    return void(
         doctype,
         base.make_node("html")(*children, **attrs))
 
