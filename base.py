@@ -25,8 +25,22 @@ def w_to_print(text):
 # documents, as in HTML or XML documents.
 make_writer = lambda t: lambda f: f(t)
 
-# A synonym. Represents a text node.
-text = make_writer
+
+# Escape characters. http://wiki.python.org/moin/EscapingHtml
+textnode_table = {
+    "&": "&amp;",
+    '"': "&quot;",
+    "'": "&apos;",
+    ">": "&gt;",
+    "<": "&lt;",
+    }
+
+def escape(text, table):
+    """Produce entities within text."""
+    return "".join(table.get(c,c) for c in text)
+
+# A text node.
+text = lambda t: make_writer(escape(t, textnode_table))
 
 
 def concat_writers(*ws):
@@ -52,8 +66,12 @@ def format_attributes(attrs):
     attribute. For example, the attribute asdf=None will be formatted
     to ' asdf'. This is used for attributes like 'checked',
     'selected', etc. in HTML input nodes."""
-    return "".join([" " + k + ("=\"" + attrs[k] + "\"" if attrs[k] else "")
-                    for k in attrs])
+    def fmt(key):
+        if attrs[key] is None:
+            return ""
+        else:
+            return '="' + escape(attrs[key], {'"': "'"}) + '"'
+    return "".join(" " + k + fmt(k) for k in attrs)
 
 
 def make_node(tag_name = None, closes = True, close_tag = True):
