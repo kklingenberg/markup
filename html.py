@@ -16,7 +16,9 @@ text = base.text
 # A void node.
 void = base.make_node()
 
-doctype = text("<!doctype html>\n")
+# The base html structure.
+
+doctype = base.make_writer("<!doctype html>\n")
 
 def html(*children, **attrs):
     return void(
@@ -72,6 +74,8 @@ video    = base.make_node("video")
 audio    = base.make_node("audio")
 source   = base.make_node("source", closes = False)
 track    = base.make_node("track", closes = False)
+br       = base.make_node("br", closes = True, close_tag = False)
+hr       = base.make_node("hr", closes = True, close_tag = False)
 
 # A constructor for nodes with prefixed attributes.
 

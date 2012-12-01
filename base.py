@@ -29,8 +29,6 @@ make_writer = lambda t: lambda f: f(t)
 # Escape characters. http://wiki.python.org/moin/EscapingHtml
 textnode_table = {
     "&": "&amp;",
-    '"': "&quot;",
-    "'": "&apos;",
     ">": "&gt;",
     "<": "&lt;",
     }
