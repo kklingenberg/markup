@@ -57,6 +57,18 @@ def concat_writers(*ws):
 
 # Markup node generation
 
+def handle_synonyms(attrs):
+    """Handles attribute synonyms.
+
+    Attributes that start with an underscore are synonyms for
+    attributes that don't. For example, '_class' is the same as
+    'class'. This is to handle reserved words like 'class' and
+    'type'. If both '_attr' and 'attr' are present, the one without the
+    underscore remains and the other one is ignored."""
+    return dict((k[1:] if k[0] == '_' else k, attrs[k])
+                for k in attrs if k[0] != '_' or k[1:] not in attrs)
+
+
 def format_attributes(attrs):
     """Formats attributes to be inserted in an opening tag.
 
@@ -83,7 +95,7 @@ def make_node(tag_name = None, closes = True, close_tag = True):
         if not tag_name:
             return concat_writers(*children)
         start_tag = "<" + tag_name
-        start_tag += format_attributes(attributes)
+        start_tag += format_attributes(handle_synonyms(attributes))
         start_tag += " /" if closes and not close_tag else ""
         start_tag += ">"
         start = make_writer(start_tag)
@@ -131,5 +143,9 @@ def union_extend(*keys):
 def with_attributes(node, union, **old_attrs):
     """Builds a node from another, with prefixed attributes."""
     def fixed_node(*children, **new_attrs):
-        return node(*children, **(union(old_attrs, new_attrs)))
+        return node(
+            *children,
+             **(union(
+                    handle_synonyms(old_attrs),
+                    handle_synonyms(new_attrs))))
     return fixed_node

@@ -8,6 +8,7 @@ from html import *
 import sys
 
 # 1. A static document.
+
 doc = html(
     head(
         title("This is a test")),
@@ -24,11 +25,14 @@ doc(sys.stdout.write)
 print "\n-----------"
 
 # 2. A dynamic document: a table with many rows.
+
 def table_with_data(column_names, rows):
-    header = tr(*[th(col) for col in column_names])
-    body = [tr(*[td(cell) for cell in row]) for row in rows]
+    header = (th(col) for col in column_names)
+    body = (tr(*(td(cell)
+                 for cell in row))
+            for row in rows)
     return table(
-        thead(header),
+        thead(tr(*header)),
         tbody(*body))
 
 
@@ -45,18 +49,20 @@ print "\n-----------"
 
 btbutton = with_attributes(button, **{"class": "btn", "type": "submit"})
 
-# The type gets overwritten and the class extended.
-btn_doc = btbutton("Push me", **{"type": "button", "class": "btn-primary"})
-
 # Wrapping the keyword arguments in a dictionary is cumbersome, but
-# needed since 'class' and 'type' are reserved words.
+# needed since 'class' and 'type' are reserved words. For these cases
+# synonyms are provided. An attribute that starts with an underscore
+# is translated into one that doesn't.
+
+# The type gets overwritten and the class extended.
+btn_doc = btbutton("Push me", _type = "button", _class = "btn-primary")
 
 btn_doc(sys.stdout.write)
 print "\n-----------"
 
 # 4. The input node seems to replace the input keyword.
 
-input(**{"type": "text", "name": "some-input"})(sys.stdout.write)
+input(_type = "text", name = "some-input")(sys.stdout.write)
 print "\n-----------"
 
 # 5. Printing to a string. Since strings are immutable (I think), I
@@ -70,10 +76,8 @@ somediv = div(
     div(
         p("A paragraph."),
         p("And another paragraph.", style="padding-top: 10px"),
-        **{
-            "class": "block",
-            "id"   : "block-body"
-            }))
+        _class = "block",
+        id     = "block-body"))
 
 somediv(target.append)
 print "".join(target)
@@ -99,8 +103,9 @@ instance1 = template_base()
 instance1(sys.stdout.write)
 print "\n-----------"
 
+# With arguments.
 instance2 = template_base(
-    button("Now it's a button.", **{"type": "button"}),
+    button("Now it's a button.", _type = "button"),
     void(
         "This is text inside the b block.",
         span("And a span")))

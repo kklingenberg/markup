@@ -37,7 +37,7 @@ doc = html(
     head(title("Example")),
     body(
         p("This is a p node with red text", style="color: red;"),
-        h1("This is a title, blow the red text")))
+        h1("This is a title below the red text")))
 
 # write the document to standard output
 doc(sys.stdout.write)
