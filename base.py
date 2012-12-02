@@ -72,16 +72,19 @@ def handle_synonyms(attrs):
 def format_attributes(attrs):
     """Formats attributes to be inserted in an opening tag.
 
-    An attribute with value None will be formatted like a boolean
-    attribute. For example, the attribute asdf=None will be formatted
+    An attribute with value True will be formatted like a boolean
+    attribute. For example, the attribute asdf=True will be formatted
     to ' asdf'. This is used for attributes like 'checked',
-    'selected', etc. in HTML input nodes."""
+    'selected', etc. in HTML input nodes. If it's value is False or
+    None, it won't be displayed."""
     def fmt(key):
-        if attrs[key] is None:
+        if attrs[key] == True:
+            return " " + key
+        elif attrs[key] == False or attrs[key] is None:
             return ""
         else:
-            return '="' + escape(attrs[key], {'"': "'"}) + '"'
-    return "".join(" " + k + fmt(k) for k in attrs)
+            return " " + key + '="' + escape(str(attrs[key]), {'"': "'"}) + '"'
+    return "".join(fmt(k) for k in attrs)
 
 
 def make_node(tag_name = None, closes = True, close_tag = True):
