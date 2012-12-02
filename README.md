@@ -12,7 +12,7 @@ Monad m => (String -> m a) -> m ()
 
 Where `m` would usually model a useful stateful operation. A document
 is then a function that receives a writing procedure (a python
-function that receives text) and does something with it.
+function that receives text and does something with it).
 
 So to write a document `doc` to a file `f`, you'd do `doc(f.write)`.
 
