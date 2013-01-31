@@ -33,12 +33,20 @@ textnode_table = {
     "<": "&lt;",
     }
 
+# Limit attribute values heavily.
+attribute_table = {
+    "&": "&amp;",
+    ">": "&gt;",
+    "<": "&lt;",
+    '"': "'",
+    }
+
 def escape(text, table):
     """Produce entities within text."""
     return "".join(table.get(c,c) for c in text)
 
 # A text node.
-text = lambda t: make_writer(escape(t, textnode_table))
+text = lambda t: make_writer(escape(unicode(t), textnode_table))
 
 
 def concat_writers(*ws):
@@ -83,7 +91,8 @@ def format_attributes(attrs):
         elif attrs[key] == False or attrs[key] is None:
             return ""
         else:
-            return " " + key + '="' + escape(str(attrs[key]), {'"': "'"}) + '"'
+            return u' {0}="{1}"'.format(
+                key, escape(unicode(attrs[key]), attribute_table))
     return "".join(fmt(k) for k in attrs)
 
 
@@ -97,10 +106,10 @@ def make_node(tag_name = None, closes = True, close_tag = True):
     def node(*children, **attributes):
         if not tag_name:
             return concat_writers(*children)
-        start_tag = "<" + tag_name
-        start_tag += format_attributes(handle_synonyms(attributes))
-        start_tag += " /" if closes and not close_tag else ""
-        start_tag += ">"
+        start_tag = u"<{0}{1}{2}>".format(
+            tag_name,
+            format_attributes(handle_synonyms(attributes)),
+            " /" if closes and not close_tag else "")
         start = make_writer(start_tag)
         if close_tag and closes:
             end = make_writer("</" + tag_name + ">")
