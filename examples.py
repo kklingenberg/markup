@@ -17,7 +17,7 @@ doc = html(
         p(u"This is unicode text inside a p node: áéíóú."),
         p(
             "This is text combined with ",
-            a("a link", href="#"),
+            a("a link", href=u"#unicode_attribute_áéíóú"),
             " and a ",
             span("span element"))))
 
@@ -123,9 +123,7 @@ class A:
         return u"A: thing = {0}".format(self.thing)
 
 
-li_set = (li(A(i)) for i in xrange(1, 21))
-
-ulist = ul(*li_set)
+ulist = ul(*(li(A(i)) for i in xrange(1, 21)))
 
 ulist(sys.stdout.write)
 print "\n-----------"

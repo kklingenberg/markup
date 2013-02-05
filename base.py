@@ -23,7 +23,7 @@ def print_token(text):
 # A writer is a higher-order function that receives a writing
 # function. Writers are also refered in these documentation as
 # documents, as in HTML or XML documents.
-make_writer = lambda t: lambda f: f(t)
+make_writer = lambda t: lambda f: f(t.encode('utf-8'))
 
 
 # Escape characters. http://wiki.python.org/moin/EscapingHtml
@@ -43,7 +43,7 @@ attribute_table = {
 
 def escape(text, table):
     """Produce entities within text."""
-    return "".join(table.get(c,c) for c in text)
+    return u"".join(table.get(c,c) for c in text)
 
 # A text node.
 text = lambda t: make_writer(escape(unicode(t), textnode_table))
@@ -73,8 +73,8 @@ def handle_synonyms(attrs):
     'class'. This is to handle reserved words like 'class' and
     'type'. If both '_attr' and 'attr' are present, the one without the
     underscore remains and the other one is ignored."""
-    return dict((k[1:] if k[0] == '_' else k, attrs[k])
-                for k in attrs if k[0] != '_' or k[1:] not in attrs)
+    return {k[1:] if k[0] == '_' else k: attrs[k]
+            for k in attrs if k[0] != '_' or k[1:] not in attrs}
 
 
 def format_attributes(attrs):
@@ -87,13 +87,14 @@ def format_attributes(attrs):
     None, it won't be displayed."""
     def fmt(key):
         if attrs[key] == True:
-            return " " + key
+            return u" {0}".format(key)
         elif attrs[key] == False or attrs[key] is None:
-            return ""
+            return u""
         else:
             return u' {0}="{1}"'.format(
-                key, escape(unicode(attrs[key]), attribute_table))
-    return "".join(fmt(k) for k in attrs)
+                key,
+                escape(unicode(attrs[key]), attribute_table))
+    return u"".join(fmt(k) for k in attrs)
 
 
 def make_node(tag_name = None, closes = True, close_tag = True):
@@ -109,10 +110,10 @@ def make_node(tag_name = None, closes = True, close_tag = True):
         start_tag = u"<{0}{1}{2}>".format(
             tag_name,
             format_attributes(handle_synonyms(attributes)),
-            " /" if closes and not close_tag else "")
+            u" /" if closes and not close_tag else u"")
         start = make_writer(start_tag)
         if close_tag and closes:
-            end = make_writer("</" + tag_name + ">")
+            end = make_writer(u"</{0}>".format(tag_name))
             return concat_writers(start, *(children + (end,)))
         else:
             # can't really have children if the node doesn't close or
