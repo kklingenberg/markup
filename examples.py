@@ -112,3 +112,20 @@ instance2 = template_base(
 
 instance2(sys.stdout.write)
 print "\n-----------"
+
+# 7. Using objects with the __unicode__ method.
+
+class A:
+    def __init__(self, thing):
+        self.thing = thing
+
+    def __unicode__(self):
+        return u"A: thing = {0}".format(self.thing)
+
+
+li_set = (li(A(i)) for i in xrange(1, 21))
+
+ulist = ul(*li_set)
+
+ulist(sys.stdout.write)
+print "\n-----------"

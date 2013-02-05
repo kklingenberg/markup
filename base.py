@@ -9,12 +9,12 @@ else.
 # Typically you'd want to write to a file. So if *doc* is a document
 # and *f* is a file, doc(f.write) writes the document to the file.
 
-def w_to_void(text):
+def ignore_token(text):
     """A writing function that does nothing."""
     pass
 
 
-def w_to_print(text):
+def print_token(text):
     """One that prints with the *print* command."""
     print(text)
 
@@ -56,7 +56,7 @@ def concat_writers(*ws):
     combines writers sequentially into a wrapper."""
     def writer(f):
         for w in ws:
-            if isinstance(w, str) or isinstance(w, unicode):
+            if not hasattr(w, '__call__'):
                 text(w)(f)
             else:
                 w(f)

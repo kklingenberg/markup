@@ -68,7 +68,7 @@ caption  = base.make_node("caption")
 fieldset = base.make_node("fieldset")
 img      = base.make_node("img", closes = False)
 embed    = base.make_node("embed", closes = False)
-object   = base.make_node("object")
+object   = base.make_node("object") # overshadows the object type
 iframe   = base.make_node("iframe")
 video    = base.make_node("video")
 audio    = base.make_node("audio")
