@@ -105,7 +105,7 @@ def make_node(tag_name = None, closes = True, close_tag = True):
     *tag_name* is None, this node won't have opening or closing
     tags."""
     def node(*children, **attributes):
-        if not tag_name:
+        if tag_name is None:
             return concat_writers(*children)
         start_tag = u"<{0}{1}{2}>".format(
             tag_name,
@@ -114,7 +114,7 @@ def make_node(tag_name = None, closes = True, close_tag = True):
         start = make_writer(start_tag)
         if close_tag and closes:
             end = make_writer(u"</{0}>".format(tag_name))
-            return concat_writers(start, *(children + (end,)))
+            return concat_writers(concat_writers(start, *children), end)
         else:
             # can't really have children if the node doesn't close or
             # doesn't have a close tag
