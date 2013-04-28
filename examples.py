@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
 Examples of usage.
@@ -51,18 +50,18 @@ btbutton = with_attributes(button, **{"class": "btn", "type": "submit"})
 
 # Wrapping the keyword arguments in a dictionary is cumbersome, but
 # needed since 'class' and 'type' are reserved words. For these cases
-# synonyms are provided. An attribute that starts with an underscore
-# is translated into one that doesn't.
+# synonyms are provided. An attribute that ends with an underscore is
+# translated into one that doesn't.
 
 # The type gets overwritten and the class extended.
-btn_doc = btbutton("Push me", _type = "button", _class = "btn-primary")
+btn_doc = btbutton("Push me", type_="button", class_="btn-primary")
 
 btn_doc(sys.stdout.write)
 print "\n-----------"
 
 # 4. The input node seems to replace the input keyword.
 
-input(_type = "text", name = "some-input")(sys.stdout.write)
+input(type_="text", name="some-input")(sys.stdout.write)
 print "\n-----------"
 
 # 5. Printing to a string. Since strings are immutable (I think), I
@@ -76,8 +75,8 @@ somediv = div(
     div(
         p("A paragraph."),
         p("And another paragraph.", style="padding-top: 10px"),
-        _class = "block",
-        id     = "block-body"))
+        class_="block",
+        id="block-body"))
 
 somediv(target.append)
 print "".join(target)
@@ -87,14 +86,14 @@ print "-----------"
 # arguments could then act as the predetermined behaviour for the
 # template.
 
-def template_base(block_a = p("This is a placeholder."),
-                  block_b = p("This too is a placeholder")):
+def template_base(block_a=p("This is a placeholder."),
+                  block_b=p("This too is a placeholder")):
     doc = html(
         head(
             title("A template example")),
         body(
-            div(block_a, id = "a-block"),
-            div(block_b, id = "b-block")))
+            div(block_a, id="a-block"),
+            div(block_b, id="b-block")))
     return doc
 
 # With the defaults.
@@ -105,7 +104,7 @@ print "\n-----------"
 
 # With arguments.
 instance2 = template_base(
-    button("Now it's a button.", _type = "button"),
+    button("Now it's a button.", type_="button"),
     void(
         "This is text inside the b block.",
         span("And a span")))

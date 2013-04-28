@@ -68,13 +68,13 @@ def concat_writers(*ws):
 def handle_synonyms(attrs):
     """Handles attribute synonyms.
 
-    Attributes that start with an underscore are synonyms for
-    attributes that don't. For example, '_class' is the same as
-    'class'. This is to handle reserved words like 'class' and
-    'type'. If both '_attr' and 'attr' are present, the one without the
-    underscore remains and the other one is ignored."""
-    return {k[1:] if k[0] == '_' else k: attrs[k]
-            for k in attrs if k[0] != '_' or k[1:] not in attrs}
+    Attributes that end with an underscore are synonyms for attributes
+    that don't. For example, 'class_' is the same as 'class'. This is
+    to handle reserved words like 'class' and 'type'. If both 'attr_'
+    and 'attr' are present, the one without the underscore remains and
+    the other one is ignored."""
+    return {k[:-1] if k[-1] == '_' else k: attrs[k]
+            for k in attrs if k[-1] != '_' or k[:-1] not in attrs}
 
 
 def format_attributes(attrs):
@@ -97,7 +97,7 @@ def format_attributes(attrs):
     return u"".join(fmt(k) for k in attrs)
 
 
-def make_node(tag_name = None, closes = True, close_tag = True):
+def make_node(tag_name=None, closes=True, close_tag=True):
     """Builds a new markup node.
 
     Closes the node if *closes* is True, and uses a different tag to
