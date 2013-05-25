@@ -3,7 +3,7 @@
 Examples of usage.
 """
 
-from html import *
+from markup.html import *
 import sys
 
 # 1. A static document.
