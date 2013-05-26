@@ -78,6 +78,8 @@ br       = base.make_node("br", closes=True, close_tag=False)
 hr       = base.make_node("hr", closes=True, close_tag=False)
 i        = base.make_node("i")
 b        = base.make_node("b")
+u        = base.make_node("u")
+em       = base.make_node("em")
 code     = base.make_node("code")
 strong   = base.make_node("strong")
 small    = base.make_node("small")
@@ -91,5 +93,5 @@ def with_attributes(node, **attrs):
     attribute which will be extended."""
     return base.with_attributes(
         node,
-        base.union_extend("class"),
+        base.union_extend("class", "style"),
         **attrs)
