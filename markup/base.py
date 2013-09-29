@@ -19,11 +19,21 @@ def print_token(text):
     print(text)
 
 
+class Writer(object):
+    """The basic type. A wrapper around (function -> action)."""
+
+    def __init__(self, apply_):
+        self.apply = apply_
+
+    def __call__(self, fn):
+        return self.apply(fn)
+
+
 # The lower-most constructor. Redirects text to a writing procedure.
 # A writer is a higher-order function that receives a writing
 # function. Writers are also refered in these documentation as
 # documents, as in HTML or XML documents.
-make_writer = lambda t: lambda f: f(t.encode('utf-8'))
+make_writer = lambda t: Writer(lambda f: f(t.encode('utf-8')))
 
 
 # Escape characters. http://wiki.python.org/moin/EscapingHtml
@@ -56,11 +66,11 @@ def concat_writers(*ws):
     combines writers sequentially into a wrapper."""
     def writer(f):
         for w in ws:
-            if not hasattr(w, '__call__'):
+            if not isinstance(w, Writer):
                 text(w)(f)
             else:
                 w(f)
-    return writer
+    return Writer(writer)
 
 
 # Markup node generation
