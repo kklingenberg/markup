@@ -92,10 +92,12 @@ nbsp = base.make_writer("&nbsp;")
 # A constructor for nodes with prefixed attributes.
 
 def with_attributes(node, **attrs):
-    """Builds a node from another with prefixed attributes.
+    """
+    Builds a node from another with prefixed attributes.
 
     New attributes will replace old ones, except for the 'class' and
-    'style' attributes which will be extended."""
+    'style' attributes which will be extended.
+    """
     return base.with_attributes(
         node,
         base.union_extend("class", "style"),
