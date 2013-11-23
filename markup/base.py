@@ -74,12 +74,10 @@ def concat_writers(*ws):
     This is nothing more than a glorified function sequencer. It
     combines writers sequentially into a wrapper.
     """
+    writers = [text(w) if not isinstance(w, Writer) else w
+               for w in ws if w is not None]
     def writer(f):
-        for w in (w for w in ws if w is not None):
-            if not isinstance(w, Writer):
-                text(w)(f)
-            else:
-                w(f)
+        for w in writers: w(f)
     return Writer(writer)
 
 
