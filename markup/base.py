@@ -3,6 +3,9 @@ Exports the constructors that will serve as foundation for everything
 else.
 """
 
+import inspect
+
+
 # Some useful writing functions here. A writing function is one
 # capable of receiving a string and doing something useful with it.
 
@@ -129,6 +132,8 @@ def make_node(tag_name=None, closes=True, close_tag=True):
     tags.
     """
     def node(*children, **attributes):
+        if len(children) == 1 and inspect.isgenerator(children[0]):
+            children = children[0]
         if tag_name is None:
             return concat_writers(*children)
         start_tag = u"<{0}{1}{2}>".format(
