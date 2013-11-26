@@ -84,6 +84,7 @@ code     = base.make_node("code")
 strong   = base.make_node("strong")
 small    = base.make_node("small")
 pre      = base.make_node("pre")
+noscript = base.make_node("noscript")
 
 # Non-breaking space
 
