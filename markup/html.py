@@ -85,6 +85,9 @@ strong   = base.make_node("strong")
 small    = base.make_node("small")
 pre      = base.make_node("pre")
 noscript = base.make_node("noscript")
+select   = base.make_node("select")
+option   = base.make_node("option")
+optgroup = base.make_node("optgroup")
 
 # Non-breaking space
 
