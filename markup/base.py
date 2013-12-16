@@ -111,9 +111,9 @@ def format_attributes(attrs):
     None, it won't be displayed.
     """
     def fmt(key):
-        if attrs[key] == True:
+        if attrs[key] is True:
             return u" {0}".format(key)
-        elif attrs[key] == False or attrs[key] is None:
+        elif attrs[key] is False or attrs[key] is None:
             return u""
         else:
             return u' {0}="{1}"'.format(
