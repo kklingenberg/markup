@@ -4,6 +4,20 @@ else.
 """
 
 import inspect
+import functools
+import collections
+
+
+def partition(p, col):
+    pos, neg = [], []
+    for e in col: (pos if p(e) else neg).append(e)
+    return pos, neg
+
+
+#: The state of a writer when dumping a token
+writer_state = collections.namedtuple('writer_state', 'nest last_token')
+
+initial_state = writer_state(0, u"")
 
 
 # Some useful writing functions here. A writing function is one
@@ -34,15 +48,44 @@ class Writer(object):
     def __init__(self, apply_):
         self.apply = apply_
 
-    def __call__(self, fn):
-        return self.apply(fn)
+    def __call__(self, fn, state=None):
+        if state is None: state = initial_state
+        return self.apply(fn, state)
+
+    @staticmethod
+    def wrap(f):
+        grabs_state = False
+        try:
+            argspec = inspect.getargspec(f)
+            grabs_state = argspec.keywords is not None
+            grabs_state = grabs_state or \
+                ('state' in argspec.args and argspec.defaults is not None and \
+                 len(argspec.args) - len(argspec.defaults) <= \
+                 argspec.args.index('state'))
+        except: pass
+        if not grabs_state:
+            def simple(t, state=None):
+                f(t)
+                return state
+            return functools.wraps(f)(simple)
+        def forward_state(t, state):
+            f(t, state=state)
+            return writer_state(nest=state.nest, last_token=t)
+        return functools.wraps(f)(forward_state)
 
 
-# The lower-most constructor. Redirects text to a writing procedure.
-# A writer is a higher-order function that receives a writing
-# function. Writers are also refered in these documentation as
-# documents, as in HTML or XML documents.
-make_writer = lambda t: Writer(lambda f: f(t.encode('utf-8')))
+# Used to give attributes to a node as a positional argument
+class attrs(dict): pass
+
+
+def make_writer(t):
+    """
+    The lower-most constructor. Redirects text to a writing procedure.
+    A writer is a higher-order function that receives a writing
+    function. Writers are also refered in this documentation as
+    documents, as in HTML or XML documents.
+    """
+    return Writer(lambda f, *args: Writer.wrap(f)(t.encode('utf-8'), *args))
 
 
 # Escape characters. http://wiki.python.org/moin/EscapingHtml
@@ -79,14 +122,29 @@ def concat_writers(*ws):
     """
     writers = [text(w) if not isinstance(w, Writer) else w
                for w in ws if w is not None]
-    def writer(f):
-        for w in writers: w(f)
+    def writer(f, state=None):
+        for w in writers: state = w(f, state)
+        return state
+    return Writer(writer)
+
+
+def nesting(w):
+    def writer(f, state=None):
+        state = w(f, state)
+        return writer_state(nest=state.nest + 1, last_token=state.last_token)
+    return Writer(writer)
+
+
+def unnesting(w):
+    def writer(f, state=None):
+        state = w(f, state)
+        return writer_state(nest=state.nest - 1, last_token=state.last_token)
     return Writer(writer)
 
 
 # Markup node generation
 
-def handle_synonyms(attrs):
+def handle_synonyms(attributes):
     """
     Handles attribute synonyms.
 
@@ -96,11 +154,11 @@ def handle_synonyms(attrs):
     and 'attr' are present, the one without the underscore remains and
     the other one is ignored.
     """
-    return {k[:-1] if k[-1] == '_' else k: attrs[k]
-            for k in attrs if k[-1] != '_' or k[:-1] not in attrs}
+    return {k[:-1] if k[-1] == '_' else k: attributes[k]
+            for k in attributes if k[-1] != '_' or k[:-1] not in attributes}
 
 
-def format_attributes(attrs):
+def format_attributes(attributes):
     """
     Formats attributes to be inserted in an opening tag.
 
@@ -111,15 +169,22 @@ def format_attributes(attrs):
     None, it won't be displayed.
     """
     def fmt(key):
-        if attrs[key] is True:
+        if attributes[key] is True:
             return u" {0}".format(key)
-        elif attrs[key] is False or attrs[key] is None:
+        elif attributes[key] is False or attributes[key] is None:
             return u""
         else:
             return u' {0}="{1}"'.format(
                 key,
-                escape(unicode(attrs[key]), attribute_table))
-    return u"".join(fmt(k) for k in attrs)
+                escape(unicode(attributes[key]), attribute_table))
+    return u"".join(fmt(k) for k in attributes)
+
+
+def fuse_attributes(dicts):
+    "~ reduce(lambda d1, d2: dict(d1, **d2), dicts)"
+    r = {}
+    for d in dicts: r.update(d)
+    return r
 
 
 def make_node(tag_name=None, closes=True, close_tag=True):
@@ -132,6 +197,10 @@ def make_node(tag_name=None, closes=True, close_tag=True):
     tags.
     """
     def node(*children, **attributes):
+        positional_attributes, children = partition(
+            lambda child: isinstance(child, attrs), children)
+        positional_attributes.append(attributes)
+        attributes = fuse_attributes(positional_attributes)
         if len(children) == 1 and inspect.isgenerator(children[0]):
             children = children[0]
         if tag_name is None:
@@ -143,7 +212,10 @@ def make_node(tag_name=None, closes=True, close_tag=True):
         start = make_writer(start_tag)
         if close_tag and closes:
             end = make_writer(u"</{0}>".format(tag_name))
-            return concat_writers(concat_writers(start, *children), end)
+            return concat_writers(
+                nesting(start),
+                unnesting(concat_writers(*children)),
+                end)
         else:
             # can't really have children if the node doesn't close or
             # doesn't have a close tag
@@ -191,9 +263,17 @@ def with_attributes(node, union, **old_attrs):
     Builds a node from another, with prefixed attributes.
     """
     def fixed_node(*children, **new_attrs):
+        positional_attributes, children = partition(
+            lambda child: isinstance(child, attrs), children)
+        positional_attributes.append(new_attrs)
+        new_attrs = fuse_attributes(positional_attributes)
         return node(
             *children,
              **(union(
                     handle_synonyms(old_attrs),
                     handle_synonyms(new_attrs))))
     return fixed_node
+
+
+def pretty(doc, indent=2):
+    pass

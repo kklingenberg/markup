@@ -126,3 +126,12 @@ ulist = ul(*(li(A(i)) for i in xrange(1, 21)))
 
 ulist(sys.stdout.write)
 print "\n-----------"
+
+# 8. Positional arguments
+
+positional_args_doc = html(
+    attrs(lang="en"),
+    head(title("Ahem")),
+    body(p("Hello")))
+
+positional_args_doc(sys.stdout.write)

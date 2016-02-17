@@ -13,6 +13,9 @@ import base
 # Reexport the text node.
 text = base.text
 
+# Reexport the attrs constructor
+attrs = base.attrs
+
 # A void node.
 void = base.make_node()
 
@@ -20,10 +23,10 @@ void = base.make_node()
 
 doctype = base.make_writer("<!doctype html>")
 
-def html(*children, **attrs):
+def html(*children, **attributes):
     return void(
         doctype,
-        base.make_node("html")(*children, **attrs))
+        base.make_node("html")(*children, **attributes))
 
 head = base.make_node("head")
 body = base.make_node("body")
@@ -95,7 +98,7 @@ nbsp = base.make_writer("&nbsp;")
 
 # A constructor for nodes with prefixed attributes.
 
-def with_attributes(node, **attrs):
+def with_attributes(node, **attributes):
     """
     Builds a node from another with prefixed attributes.
 
@@ -105,4 +108,4 @@ def with_attributes(node, **attrs):
     return base.with_attributes(
         node,
         base.union_extend("class", "style"),
-        **attrs)
+        **attributes)
